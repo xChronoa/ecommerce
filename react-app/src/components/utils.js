@@ -81,6 +81,18 @@ export function useCart() {
                 "Are you sure you want to remove this product from your cart?"
             )
         ) {
+            toast.success("Sucessfully removed product from cart.", {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: false,
+                draggable: false,
+                progress: undefined,
+                theme: "light",
+                transition: Slide,
+            });
+
             try {
                 const response = await fetch(
                     `http://127.0.0.1:8000/api/cart/remove/${productId}`,
