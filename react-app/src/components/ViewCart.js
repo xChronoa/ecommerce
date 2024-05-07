@@ -2,25 +2,12 @@ import React from "react";
 import { useCart } from "./utils";
 import { Link } from "react-router-dom";
 import Loading from "./Loading";
-import { ToastContainer, toast, Slide } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 // View Cart Component
 const ViewCart = () => {
     const { cart, loading, cartTotal, removeFromCart } = useCart();
 
-    const notify = () =>
-        toast.success("Sucessfully removed product from cart.", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: false,
-            draggable: false,
-            progress: undefined,
-            theme: "light",
-            transition: Slide,
-        });
-    
     // To fetch data before rendering page.
     if (loading) {
         return <Loading />
@@ -49,7 +36,6 @@ const ViewCart = () => {
                             <button
                                 onClick={() => { 
                                     removeFromCart(item.id);
-                                    notify();
                                 }}
                                 className="flex-fill btn btn-outline-danger"
                             >
