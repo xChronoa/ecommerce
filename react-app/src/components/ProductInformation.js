@@ -4,7 +4,7 @@ import React from "react";
 // b. Product Information Display
 const ProductInformation = (props) => {
     return (
-        <div className="product-container col-md-3 mb-2">
+        <div className="product-container col-md-4 mb-2">
             <div
                 key={props.id}
                 className="product-content border border-1 p-4 rounded position-relative h-100"
@@ -23,14 +23,16 @@ const ProductInformation = (props) => {
 
                 {/* Button to item to cart */}
                 <button
-                    onClick={() =>
+                    onClick={() => {
                         props.addToCart({
                             id: props.id,
                             name: props.name,
                             description: props.description,
                             price: props.price,
                         })
-                    }
+
+                        props.notify();
+                    }}
                     className="btn btn-primary position-absolute bottom-0 end-0 m-3"
                 >
                     Add To Cart
