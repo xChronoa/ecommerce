@@ -1,37 +1,187 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast, Slide } from "react-toastify";
 
+// Contains state and effect for the functionalities of cart.
 export function useCart() {
+    // Store and setter for cart.
     const [cart, setCart] = useState([]);
-    const [order, setOrder] = useState([]);
 
-    // C. Add to Cart Functionality
-    const addToCart = (product) => {
-        const productIndex = cart.findIndex((item) => item.id === product.id);
+    // State for displaying a loading page. Used for fetching data first before render.
+    const [loading, setLoading] = useState(true);
 
-        // Check if product already exists in the cart, if so increment its quantity, otherwise create it.
-        if (productIndex !== -1) {
-            const updatedCart = [...cart];
-            updatedCart[productIndex].quantity += 1;
-            setCart(updatedCart);
+    // Store and setter for cart total (total price and quantity).
+    const [cartTotal, setCartTotal] = useState({ totalPrice: 0, totalQuantity: 0 });
+
+    // Sends a GET request to fetch all the items in Cart.
+    const fetchCartItems = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/cart");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch cart items");
+            }
+
+            const data = await response.json();
+
+            setCart(data);
+        } catch (error) {
+            console.error("Error fetching cart items:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch the total price sum of all products in cart and total product quantity inside it.
+    const fetchCartTotal = async () => {
+        try {
+            const response = await fetch(
+                "http://127.0.0.1:8000/api/cart/total"
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch cart total");
+            }
+
+            const cartTotalData = await response.json();
+
+            setCartTotal(cartTotalData);
+        } catch (error) {
+            console.error("Error fetching cart total:", error);
+        }
+    };
+
+    // Add to Cart Functionality
+    const addToCart = async (product) => {
+        try {
+            const response = await fetch(
+                "http://127.0.0.1:8000/api/cart/add",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ ...product, quantity: 1 }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to add item to cart");
+            }
+
+            fetchCartItems(); // Fetch updated cart items after adding
+        } catch (error) {
+            console.error("Error adding item to cart:", error);
+        }
+    };
+
+    // Remove from Cart
+    const removeFromCart = async (productId) => {
+        if (
+            window.confirm(
+                "Are you sure you want to remove this product from your cart?"
+            )
+        ) {
+            try {
+                const response = await fetch(
+                    `http://127.0.0.1:8000/api/cart/remove/${productId}`,
+                    {
+                        method: "DELETE",
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error("Failed to remove item from cart");
+                }
+
+                fetchCartItems().then(() => {
+                    fetchCartTotal();
+                }); // Fetch updated cart items after removing
+            } catch (error) {
+                console.error("Error removing item from cart:", error);
+            }
+        }
+    };
+
+    const checkOut = async (event) => {
+        event.preventDefault(); // Prevent default form submission behavior
+
+        const form = event.target;
+
+        form.classList.add("was-validated");
+
+        // Check if input fields are valid and filled.
+        if (form.checkValidity() === false) {
+            event.stopPropagation();
         } else {
-            const newCart = [...cart, {...product, quantity: 1}];
-            setCart(newCart)
+            // Send a request to the API.
+            try {
+                if (window.confirm("Are you sure you want to checkout?")) {
+                    // Alternatively, if you want to remove data from the API
+                    const response = await fetch(
+                        "http://127.0.0.1:8000/api/cart/checkout",
+                        {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Failed to checkout.");
+                    }
+
+                    toast.success("Sucessfully removed product from cart.", {
+                        position: "top-right",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: false,
+                        pauseOnHover: false,
+                        draggable: false,
+                        progress: undefined,
+                        theme: "light",
+                        transition: Slide,
+                    });
+
+                    // Add a delay before redirecting back to product page.
+                    setTimeout(() => {
+                        window.location.href = "/product";
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Error checkout:", error);
+            }
         }
-        // alert("Item added to cart.");
     };
 
-    // Remove from Cart Functionality
-    const removeFromCart = (productToRemove) => {
-        if(window.confirm("Are you sure you want to remove this product from your cart?")) {
-            setCart(cart.filter(product => product.id !== productToRemove));
+    // Fetch cart items on component mount
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchCartItems();
+            fetchCartTotal();
+        }
+
+        fetchData();
+    }, []);
+
+    return { cart, loading, cartTotal, addToCart, removeFromCart, checkOut, fetchCartItems };
+}
+
+export function useProduct() {
+    const [products, setProducts] = useState([]);
+
+    const fetchTasks = async () => {
+        const response = await fetch("http://127.0.0.1:8000/api/products/");
+        const data = await response.json();
+
+        if (data.status === 200) {
+            setProducts(data.data);
         }
     };
 
-    const checkOut = () => {
-        setOrder([...order, ...cart]);
-        setCart([]);
-        alert("Order successful!");
-    }
+    useEffect(() => {
+        fetchTasks();
+    }, []);
 
-    return { cart, addToCart, removeFromCart, checkOut };
+    return { products, setProducts };
 }
