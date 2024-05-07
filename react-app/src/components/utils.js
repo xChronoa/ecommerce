@@ -131,7 +131,7 @@ export function useCart() {
                         throw new Error("Failed to checkout.");
                     }
 
-                    toast.success("Sucessfully removed product from cart.", {
+                    toast.success("Successful purchase!", {
                         position: "top-right",
                         autoClose: 2000,
                         hideProgressBar: false,
