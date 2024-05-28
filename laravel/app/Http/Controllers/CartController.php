@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class CartController extends Controller
 {
     // Returns data of cart table.
-    public function cartlist(Request $request)
+    public function view(Request $request)
     {
         $cart = new Cart();
         $cart_content = $cart->all();
@@ -18,7 +18,7 @@ class CartController extends Controller
     }
 
     // Adds product to the cart.
-    public function addProduct(Request $request)
+    public function addToCart(Request $request)
     {
         // Define validation rules
         $rules = [
@@ -60,7 +60,7 @@ class CartController extends Controller
     }
 
     // Removes product from the cart.
-    public function removeProduct($id)
+    public function remove($id)
     {
         // Fetch the product from the database
         $product = Cart::find($id);
