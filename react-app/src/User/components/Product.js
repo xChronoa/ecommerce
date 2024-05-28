@@ -2,7 +2,7 @@ import React from "react";
 import { useCart, useProduct } from "./utils";
 import Loading from "./Loading";
 import ProductInformation from "./ProductInformation";
-import { ToastContainer, toast, Slide } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Product Component
@@ -10,20 +10,6 @@ import 'react-toastify/dist/ReactToastify.css';
 const Product = () => {
     const { loading, addToCart } = useCart();
     const { products } = useProduct();
-
-    // For displaying successful output.
-    const notify = () =>
-        toast.success("Successfully added product to cart.", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: false,
-            draggable: false,
-            progress: undefined,
-            theme: "light",
-            transition: Slide,
-        });
 
     if (loading) {
         return <Loading />;
@@ -42,7 +28,6 @@ const Product = () => {
                         description={product.description}
                         price={product.price}
                         addToCart={addToCart}
-                        notify={notify}
                     />
                 ))}
             </div>
