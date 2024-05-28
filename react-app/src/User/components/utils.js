@@ -12,6 +12,21 @@ export function useCart() {
     // Store and setter for cart total (total price and quantity).
     const [cartTotal, setCartTotal] = useState({ totalPrice: 0, totalQuantity: 0 });
 
+    // Notification in top right using react-toast for successful operation.
+    const notify = (message) => {
+        toast.success(message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: false,
+            draggable: false,
+            progress: undefined,
+            theme: "light",
+            transition: Slide,
+        });
+    }
+
     // Sends a GET request to fetch all the items in Cart.
     const fetchCartItems = async () => {
         try {
@@ -69,6 +84,8 @@ export function useCart() {
             }
 
             fetchCartItems(); // Fetch updated cart items after adding
+
+            notify("Successfully added product to cart.");
         } catch (error) {
             console.error("Error adding item to cart:", error);
         }
@@ -76,23 +93,7 @@ export function useCart() {
 
     // Remove from Cart
     const removeFromCart = async (productId) => {
-        if (
-            window.confirm(
-                "Are you sure you want to remove this product from your cart?"
-            )
-        ) {
-            toast.success("Sucessfully removed product from cart.", {
-                position: "top-right",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: false,
-                draggable: false,
-                progress: undefined,
-                theme: "light",
-                transition: Slide,
-            });
-
+        if (window.confirm("Are you sure you want to remove this product from your cart?")) {
             try {
                 const response = await fetch(
                     `http://127.0.0.1:8000/api/cart/remove/${productId}`,
@@ -108,6 +109,8 @@ export function useCart() {
                 fetchCartItems().then(() => {
                     fetchCartTotal();
                 }); // Fetch updated cart items after removing
+
+                notify("Sucessfully removed product from cart.")
             } catch (error) {
                 console.error("Error removing item from cart:", error);
             }
@@ -143,17 +146,7 @@ export function useCart() {
                         throw new Error("Failed to checkout.");
                     }
 
-                    toast.success("Successful purchase!", {
-                        position: "top-right",
-                        autoClose: 2000,
-                        hideProgressBar: false,
-                        closeOnClick: false,
-                        pauseOnHover: false,
-                        draggable: false,
-                        progress: undefined,
-                        theme: "light",
-                        transition: Slide,
-                    });
+                    notify("Successful purchase!");
 
                     // Add a delay before redirecting back to product page.
                     setTimeout(() => {
