@@ -30,8 +30,6 @@ const ProductInformation = (props) => {
                             description: props.description,
                             price: props.price,
                         })
-
-                        props.notify();
                     }}
                     className="btn btn-primary position-absolute bottom-0 end-0 m-3"
                 >
